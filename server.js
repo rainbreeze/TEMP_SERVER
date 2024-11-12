@@ -31,6 +31,42 @@ app.get('/redirecthtml/:path', (req, res) => {
     console.log('Redirect path:', path);
     res.json({ redirectTo: path });
 });
+
+app.post('/login/:role', (req, res) => {
+    const role = req.params.role;  // 'mentor', 'mentee', 'professor' 중 하나
+    let actorid = 0;
+    let actorname = '';
+
+    // 역할에 따라 actorid와 actorname을 설정
+    switch (role) {
+        case 'mentor':
+            actorid = 2;
+            actorname = '멘토';
+            break;
+        case 'mentee':
+            actorid = 1;
+            actorname = '멘티';
+            break;
+        case 'professor':
+            actorid = 3; // 예시로 교수는 actorid 3을 사용
+            actorname = '교수';
+            break;
+        default:
+            return res.status(400).send('잘못된 역할입니다.');
+    }
+
+    // 해당 actorid와 actorname을 수정하는 쿼리 실행
+    const updateQuery = 'UPDATE Actors SET actorname = ? WHERE actorid = ?';
+    db.query(updateQuery, [actorname, actorid], (err, results) => {
+        if (err) {
+            console.error('업데이트 오류:', err);
+            return res.status(500).send('배우 정보 업데이트 실패');
+        }
+
+        // 성공적으로 업데이트되었다면
+        res.send({ message: `${actorname}으로 역할이 변경되었습니다.` });
+    });
+});
 // 데이터 조회 API (강의 목록 가져오기)
 app.get('/lectures', (req, res) => {
     db.query('SELECT * FROM lectures', (err, results) => {
