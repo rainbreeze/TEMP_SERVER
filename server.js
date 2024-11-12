@@ -25,7 +25,13 @@ db.connect((err) => {
     }
     console.log('MySQL에 연결되었습니다.');
 });
-
+// 특정 강의로 리디렉션을 처리하는 API
+app.get('/redirecthtml/:dirpath', (req, res) => {
+    const dirPath = req.params.dirpath;  // 요청된 경로 (예: lecture1.html)
+    
+    // dirPath를 그대로 리턴
+    res.json({ redirectTo: dirPath });
+});
 // 데이터 조회 API (강의 목록 가져오기)
 app.get('/lectures', (req, res) => {
     db.query('SELECT * FROM lectures', (err, results) => {
