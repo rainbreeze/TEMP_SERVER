@@ -67,6 +67,26 @@ app.post('/login/:role', (req, res) => {
         res.send({ message: `${actorname}으로 역할이 변경되었습니다.` });
     });
 });
+
+// actorname을 가져오는 API
+app.get('/actorname', (req, res) => {
+    const query = 'SELECT actorname FROM Actors WHERE actorid = 1';  // id가 1인 actorname만 가져옵니다 (예: '멘티' 또는 '멘토')
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('DB 오류:', err);
+            return res.status(500).send('배우 이름을 가져오는 데 실패했습니다.');
+        }
+
+        // 결과가 없다면
+        if (results.length === 0) {
+            return res.status(404).send('배우 데이터가 없습니다.');
+        }
+
+        res.json({ actorname: results[0].actorname });
+    });
+});
+
 // 데이터 조회 API (강의 목록 가져오기)
 app.get('/lectures', (req, res) => {
     db.query('SELECT * FROM lectures', (err, results) => {
