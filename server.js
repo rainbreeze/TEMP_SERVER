@@ -70,7 +70,7 @@ app.post('/login/:role', (req, res) => {
 
 // actorname을 가져오는 API
 app.get('/actorname', (req, res) => {
-    const query = 'SELECT actorname FROM Actors WHERE actorid = 1';  // id가 1인 actorname만 가져옵니다 (예: '멘티' 또는 '멘토')
+    const query = 'SELECT actorname FROM Actors WHERE id = 1';  // id가 1인 actorname만 가져옵니다 (예: '멘티' 또는 '멘토')
     
     db.query(query, (err, results) => {
         if (err) {
@@ -86,6 +86,7 @@ app.get('/actorname', (req, res) => {
         res.json({ actorname: results[0].actorname });
     });
 });
+
 
 // 데이터 조회 API (강의 목록 가져오기)
 app.get('/lectures', (req, res) => {
