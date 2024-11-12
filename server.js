@@ -56,7 +56,7 @@ app.post('/login/:role', (req, res) => {
     }
 
     // 해당 actorid와 actorname을 수정하는 쿼리 실행
-    const updateQuery = 'UPDATE Actors SET actorname = ? WHERE actorid = ?';
+    const updateQuery = 'UPDATE Actors SET actorid = ?, actorname = ? WHERE id = 1';
     db.query(updateQuery, [actorname, actorid], (err, results) => {
         if (err) {
             console.error('업데이트 오류:', err);
