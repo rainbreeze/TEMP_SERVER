@@ -2,6 +2,7 @@ const express = require('express');  // express 모듈을 가져옵니다.
 const cors = require('cors');
 const Lectures = require('./lectures');
 const Actors = require('./actors');
+const Comments = require('./comments');  // 댓글 처리를 위한 Comments 클래스 추가
 const db = require('./database');  // database.js에서 db 연결을 가져옵니다.
 
 class Server {
@@ -9,9 +10,10 @@ class Server {
         this.app = express();  // express 앱 인스턴스
         this.port = process.env.PORT || 3000;  // 포트 설정
 
-        // 객체 생성: Lectures와 Actors 클래스 인스턴스
+        // 객체 생성: Lectures, Actors, Comments 클래스 인스턴스
         this.lectures = new Lectures(db);
         this.actors = new Actors(db);
+        this.comments = new Comments(db);  // Comments 객체 생성
 
         // 서버 미들웨어 설정
         this.setupMiddlewares();
@@ -122,15 +124,12 @@ class Server {
                 return res.status(400).send('lectureid와 comment는 필수입니다.');
             }
 
-            // commentor는 없으면 '익명'으로 처리
+            // commentor가 없으면 '익명'으로 처리
             const commenter = commentor || '익명';
 
-            // 댓글 삽입 쿼리
-            const query = 'INSERT INTO comments (lectureid, comment, commentor) VALUES (?, ?, ?)';
-
-            db.query(query, [lectureid, comment, commenter], (err, results) => {
+            // Comments 객체를 사용하여 댓글을 추가
+            this.comments.addComment(lectureid, comment, commenter, (err, results) => {
                 if (err) {
-                    console.error('댓글 추가 오류:', err);
                     return res.status(500).send('댓글 추가 실패');
                 }
 
@@ -138,6 +137,17 @@ class Server {
             });
         });
 
+        // 댓글 조회 API (강의 ID에 대한 댓글 가져오기)
+        this.app.get('/comments/:lectureid', (req, res) => {
+            const { lectureid } = req.params;
+
+            this.comments.getCommentsByLectureId(lectureid, (err, results) => {
+                if (err) {
+                    return res.status(500).send('댓글 조회 실패');
+                }
+                res.json(results);
+            });
+        });
     }
 
     // 서버 시작 메서드
