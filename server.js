@@ -112,6 +112,32 @@ class Server {
                 res.send('좋아요가 증가되었습니다.');
             });
         });
+
+        // 댓글 추가 API
+        this.app.post('/comments', (req, res) => {
+            const { lectureid, comment, commentor } = req.body;
+
+            // 필수 필드 체크
+            if (!lectureid || !comment) {
+                return res.status(400).send('lectureid와 comment는 필수입니다.');
+            }
+
+            // commentor는 없으면 '익명'으로 처리
+            const commenter = commentor || '익명';
+
+            // 댓글 삽입 쿼리
+            const query = 'INSERT INTO comments (lectureid, comment, commentor) VALUES (?, ?, ?)';
+
+            db.query(query, [lectureid, comment, commenter], (err, results) => {
+                if (err) {
+                    console.error('댓글 추가 오류:', err);
+                    return res.status(500).send('댓글 추가 실패');
+                }
+
+                res.status(201).send('댓글이 추가되었습니다.');
+            });
+        });
+
     }
 
     // 서버 시작 메서드
