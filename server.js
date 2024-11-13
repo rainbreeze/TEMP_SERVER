@@ -1,7 +1,6 @@
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
-require('dotenv').config();  // .env 파일 로드
+const db = require('./database');  // database.js에서 db 연결을 가져옵니다.
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -12,26 +11,14 @@ app.use(cors());
 // JSON 형식의 요청 본문을 처리할 수 있도록 설정
 app.use(express.json());
 
-// MySQL 연결 설정
-const db = mysql.createConnection({
-    uri: process.env.MYSQL_PUBLIC_URL, // 공용 URL을 사용
-});
-
-// MySQL 연결 확인
-db.connect((err) => {
-    if (err) {
-        console.error('MySQL 연결 오류:', err);
-        return;
-    }
-    console.log('MySQL에 연결되었습니다.');
-});
-
+// Redirect 경로로 JSON 반환
 app.get('/redirecthtml/:path', (req, res) => {
     const path = req.params.path;  // 요청된 경로 (예: lecture/lecture.html)
     console.log('Redirect path:', path);
     res.json({ redirectTo: path });
 });
 
+// 로그인 API (role에 따라 actorid와 actorname 설정)
 app.post('/login/:role', (req, res) => {
     const role = req.params.role;  // 'mentor', 'mentee', 'professor' 중 하나
     let actorid = 0;
@@ -86,7 +73,6 @@ app.get('/actorname', (req, res) => {
         res.json({ actorname: results[0].actorname });
     });
 });
-
 
 // 데이터 조회 API (강의 목록 가져오기)
 app.get('/lectures', (req, res) => {
