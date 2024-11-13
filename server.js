@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express');  // express 모듈을 가져옵니다.
 const cors = require('cors');
 const Lectures = require('./lectures');
 const Actors = require('./actors');
