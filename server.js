@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const Lectures = require('./lectures');
+const Actors = require('./actors');
 const db = require('./database');  // database.js에서 db 연결을 가져옵니다.
 
 class Server {
     constructor() {
         this.app = express();  // express 앱 인스턴스
         this.port = process.env.PORT || 3000;  // 포트 설정
+
+        // 객체 생성: Lectures와 Actors 클래스 인스턴스
+        this.lectures = new Lectures(db);
+        this.actors = new Actors(db);
 
         // 서버 미들웨어 설정
         this.setupMiddlewares();
@@ -26,79 +32,46 @@ class Server {
     setupRoutes() {
         // Redirect 경로로 JSON 반환
         this.app.get('/redirecthtml/:path', (req, res) => {
-            const path = req.params.path;  // 요청된 경로 (예: lecture/lecture.html)
+            const path = req.params.path;
             console.log('Redirect path:', path);
             res.json({ redirectTo: path });
         });
 
-        // 로그인 API (role에 따라 actorid와 actorname 설정)
+        // 로그인 API
         this.app.post('/login/:role', (req, res) => {
-            const role = req.params.role;  // 'mentor', 'mentee', 'professor' 중 하나
-            let actorid = 0;
-            let actorname = '';
-
-            // 역할에 따라 actorid와 actorname을 설정
-            switch (role) {
-                case 'mentor':
-                    actorid = 2;
-                    actorname = '멘토';
-                    break;
-                case 'mentee':
-                    actorid = 1;
-                    actorname = '멘티';
-                    break;
-                case 'professor':
-                    actorid = 3; // 예시로 교수는 actorid 3을 사용
-                    actorname = '교수';
-                    break;
-                default:
-                    return res.status(400).send('잘못된 역할입니다.');
-            }
-
-            // 해당 actorid와 actorname을 수정하는 쿼리 실행
-            const updateQuery = 'UPDATE Actors SET actorid = ?, actorname = ? WHERE id = 1';
-            db.query(updateQuery, [actorid, actorname], (err, results) => {
+            const role = req.params.role;
+            this.actors.updateActorRole(role, (err, results) => {
                 if (err) {
-                    console.error('업데이트 오류:', err);
-                    return res.status(500).send('배우 정보 업데이트 실패');
+                    return res.status(400).send(err);
                 }
-
-                // 성공적으로 업데이트되었다면
-                res.send({ message: `${actorname}으로 역할이 변경되었습니다.` });
+                res.send({ message: `${role}으로 역할이 변경되었습니다.` });
             });
         });
 
         // actorname을 가져오는 API
         this.app.get('/actorname', (req, res) => {
-            const query = 'SELECT actorname FROM Actors WHERE id = 1';  // id가 1인 actorname만 가져옵니다 (예: '멘티' 또는 '멘토')
-
-            db.query(query, (err, results) => {
+            this.actors.getActorName((err, results) => {
                 if (err) {
-                    console.error('DB 오류:', err);
                     return res.status(500).send('배우 이름을 가져오는 데 실패했습니다.');
                 }
-
-                // 결과가 없다면
                 if (results.length === 0) {
                     return res.status(404).send('배우 데이터가 없습니다.');
                 }
-
                 res.json({ actorname: results[0].actorname });
             });
         });
 
         // 데이터 조회 API (강의 목록 가져오기)
         this.app.get('/lectures', (req, res) => {
-            db.query('SELECT * FROM lectures', (err, results) => {
+            this.lectures.getAllLectures((err, results) => {
                 if (err) {
-                    res.status(500).send('데이터 조회 실패');
-                    return;
+                    return res.status(500).send('데이터 조회 실패');
                 }
                 res.json(results);
             });
         });
 
-        // 강의 삽입 API (새 강의 추가)
+        // 강의 삽입 API
         this.app.post('/lectures', (req, res) => {
             const { lecturenumber, content, link, star, good } = req.body;
 
@@ -106,13 +79,8 @@ class Server {
                 return res.status(400).send('모든 필드를 입력해야 합니다.');
             }
 
-            const query = `
-                INSERT INTO lectures (lecturenumber, content, link, star, good)
-                VALUES (?, ?, ?, ?, ?)
-            `;
-            db.query(query, [lecturenumber, content, link, star, good], (err, results) => {
+            this.lectures.addLecture(lecturenumber, content, link, star, good, (err, results) => {
                 if (err) {
-                    console.error('강의 추가 오류:', err);
                     return res.status(500).send('강의 추가 실패');
                 }
                 res.status(201).send('강의가 추가되었습니다.');
@@ -122,9 +90,8 @@ class Server {
         // 강의 삭제 API
         this.app.delete('/lectures/:id', (req, res) => {
             const { id } = req.params;
-            db.query('DELETE FROM lectures WHERE id = ?', [id], (err, results) => {
+            this.lectures.deleteLecture(id, (err, results) => {
                 if (err) {
-                    console.error('강의 삭제 오류:', err);
                     return res.status(500).send('강의 삭제 실패');
                 }
                 res.send('강의가 삭제되었습니다.');
@@ -134,14 +101,12 @@ class Server {
         // 강의 좋아요 증가 API
         this.app.put('/lectures', (req, res) => {
             const { id } = req.body;
-
             if (!id) {
                 return res.status(400).send('강의 ID를 제공해야 합니다.');
             }
 
-            db.query('UPDATE lectures SET good = good + 1 WHERE id = ?', [id], (err, results) => {
+            this.lectures.incrementGood(id, (err, results) => {
                 if (err) {
-                    console.error('좋아요 증가 오류:', err);
                     return res.status(500).send('좋아요 증가 실패');
                 }
                 res.send('좋아요가 증가되었습니다.');
