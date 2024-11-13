@@ -136,6 +136,10 @@ app.put('/lectures', (req, res) => {
 });
 
 // 서버 시작
-app.listen(port, () => {
-    console.log(`서버가 ${port} 포트에서 실행 중입니다.`);
-});
+function startServer() {
+    app.listen(port, () => {
+        console.log(`서버가 ${port} 포트에서 실행 중입니다.`);
+    });
+}
+
+module.exports = { startServer, app };
