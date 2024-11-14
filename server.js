@@ -5,7 +5,7 @@ const Lecture = require('./models/lecture');
 const Actor = require('./models/actor');
 const Comment = require('./models/comment');  // 댓글 처리를 위한 Comments 클래스 추가
 const db = require('./db/database');  // database.js에서 db 연결을 가져옵니다.
-const ActorController = require('./controllers/actorController');  // 새로 만든 ActorController
+const ActorController = require('./controllers/actorcontroller');  // 새로 만든 ActorController
 const Routes = require('./routes/routes');  // Routes 클래스
 
 class Server {
