@@ -1,8 +1,9 @@
+// routes/routes.js
 class Routes {
-    constructor(app, lectures, actors, comments) {
+    constructor(app, lectures, actorController, comments) {
         this.app = app;  // express app
         this.lectures = lectures;
-        this.actors = actors;
+        this.actorController = actorController;  // 컨트롤러로 전달된 ActorController 인스턴스
         this.comments = comments;
 
         this.setupRoutes();
@@ -17,31 +18,17 @@ class Routes {
             res.json({ redirectTo: path });
         });
 
-        // 로그인 API
+        // 로그인 API: actor 역할 업데이트
         this.app.post('/login/:role', (req, res) => {
-            const role = req.params.role;
-            this.actors.updateActorRole(role, (err, results) => {
-                if (err) {
-                    return res.status(400).send(err);
-                }
-                res.send({ message: `${role}으로 역할이 변경되었습니다.` });
-            });
+            this.actorController.updateActorRole(req, res);
         });
 
-        // actorname을 가져오는 API
+        // 배우 이름 조회 API
         this.app.get('/actorname', (req, res) => {
-            this.actors.getActorName((err, results) => {
-                if (err) {
-                    return res.status(500).send('배우 이름을 가져오는 데 실패했습니다.');
-                }
-                if (results.length === 0) {
-                    return res.status(404).send('배우 데이터가 없습니다.');
-                }
-                res.json({ actorname: results[0].actorname });
-            });
+            this.actorController.getActorName(req, res);
         });
 
-        // 데이터 조회 API (강의 목록 가져오기)
+        // 강의 관련 API들 (변경 없음)
         this.app.get('/lectures', (req, res) => {
             this.lectures.getAllLectures((err, results) => {
                 if (err) {
@@ -67,33 +54,7 @@ class Routes {
             });
         });
 
-        // 강의 삭제 API
-        this.app.delete('/lectures/:id', (req, res) => {
-            const { id } = req.params;
-            this.lectures.deleteLecture(id, (err, results) => {
-                if (err) {
-                    return res.status(500).send('강의 삭제 실패');
-                }
-                res.send('강의가 삭제되었습니다.');
-            });
-        });
-
-        // 강의 좋아요 증가 API
-        this.app.put('/lectures', (req, res) => {
-            const { id } = req.body;
-            if (!id) {
-                return res.status(400).send('강의 ID를 제공해야 합니다.');
-            }
-
-            this.lectures.incrementGood(id, (err, results) => {
-                if (err) {
-                    return res.status(500).send('좋아요 증가 실패');
-                }
-                res.send('좋아요가 증가되었습니다.');
-            });
-        });
-
-        // 댓글 추가 API
+        // 댓글 관련 API들 (변경 없음)
         this.app.post('/comments', (req, res) => {
             const { lectureid, comment, commentor } = req.body;
 
@@ -102,10 +63,8 @@ class Routes {
                 return res.status(400).send('lectureid와 comment는 필수입니다.');
             }
 
-            // commentor가 없으면 '익명'으로 처리
             const commenter = commentor || '익명';
 
-            // Comments 객체를 사용하여 댓글을 추가
             this.comments.addComment(lectureid, comment, commenter, (err, results) => {
                 if (err) {
                     return res.status(500).send('댓글 추가 실패');
@@ -115,7 +74,7 @@ class Routes {
             });
         });
 
-        // 댓글 조회 API (강의 ID에 대한 댓글 가져오기)
+        // 댓글 조회 API
         this.app.get('/comments/:lectureid', (req, res) => {
             const { lectureid } = req.params;
 
