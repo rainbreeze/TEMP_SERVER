@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const Lectures = require('./models/lectures');
-const Actors = require('./models/actors');
-const Comments = require('./models/comments');  // 댓글 처리를 위한 Comments 클래스 추가
+const Lectures = require('./controller/lecture-controller');
+const Actors = require('./controller/actor-controller');
+const Comments = require('./controller/comment-controller');  // 댓글 처리를 위한 Comments 클래스 추가
 const db = require('./db/database');  // database.js에서 db 연결을 가져옵니다.
-const Routes = require('./routes');  // 방금 만든 Routes 클래스
+const Routes = require('./routes/routes');  // 방금 만든 Routes 클래스
 
 class Server {
     constructor() {
