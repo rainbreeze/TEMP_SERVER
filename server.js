@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const Lectures = require('./controller/lecture-controller');
-const Actors = require('./controller/actor-controller');
-const Comments = require('./controller/comment-controller');  // 댓글 처리를 위한 Comments 클래스 추가
+const Lecture = require('./controller/lecture-controller');
+const Actor = require('./controller/actor-controller');
+const Comment = require('./controller/comment-controller');  // 댓글 처리를 위한 Comments 클래스 추가
 const db = require('./db/database');  // database.js에서 db 연결을 가져옵니다.
 const Routes = require('./routes/routes');  // 방금 만든 Routes 클래스
 
@@ -12,9 +12,9 @@ class Server {
         this.port = process.env.PORT || 3000;  // 포트 설정
 
         // 객체 생성: Lectures, Actors, Comments 클래스 인스턴스
-        this.lectures = new Lectures(db);
-        this.actors = new Actors(db);
-        this.comments = new Comments(db);  // Comments 객체 생성
+        this.lectures = new Lecture(db);
+        this.actors = new Actor(db);
+        this.comments = new Comment(db);  // Comments 객체 생성
 
         // 서버 미들웨어 설정
         this.setupMiddlewares();

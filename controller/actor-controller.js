@@ -1,4 +1,4 @@
-class Actors {
+class Actor {
     constructor(db) {
         this.db = db; // 데이터베이스 연결 객체
     }
@@ -36,4 +36,4 @@ class Actors {
     }
 }
 
-module.exports = Actors;
+module.exports = Actor;

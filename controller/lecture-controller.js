@@ -1,4 +1,4 @@
-class Lectures {
+class Lecture {
     constructor(db) {
         this.db = db;
     }
@@ -36,4 +36,4 @@ class Lectures {
     }
 }
 
-module.exports = Lectures;
+module.exports = Lecture;
