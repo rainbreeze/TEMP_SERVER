@@ -9,6 +9,12 @@ class Routes {
     }
 
     setupRoutes() {
+        // Redirect 경로로 JSON 반환
+        this.app.get('/redirecthtml/:path', (req, res) => {
+            const path = req.params.path;
+            console.log('Redirect path:', path);
+            res.json({ redirectTo: path });
+        });
         // 로그인 API
         this.app.post('/login/:role', (req, res) => {
             this.actorController.updateActorRole(req, res);
