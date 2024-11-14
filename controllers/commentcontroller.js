@@ -1,3 +1,4 @@
+// commentController.js
 class CommentController {
     constructor(comment) {
         this.comment = comment;  // Comment 모델을 의존성 주입
@@ -17,7 +18,7 @@ class CommentController {
     // 댓글 추가
     addComment(req, res) {
         const { lectureid, comment, commentor } = req.body;
-        const commenter = commentor || '익명';
+        const commenter = commentor || '익명';  // '익명' 기본값 설정
 
         if (!lectureid || !comment) {
             return res.status(400).send('lectureid와 comment는 필수입니다.');
@@ -27,7 +28,6 @@ class CommentController {
             if (err) {
                 return res.status(500).send('댓글 추가 실패');
             }
-
             res.status(201).send('댓글이 추가되었습니다.');
         });
     }
