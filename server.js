@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const Lecture = require('./controller/lecture-controller');
-const Actor = require('./controller/actor-controller');
-const Comment = require('./controller/comment-controller');  // 댓글 처리를 위한 Comments 클래스 추가
+const Lecture = require('./models/lecture');
+const Actor = require('./models/actor');
+const Comment = require('./models/comment');  // 댓글 처리를 위한 Comments 클래스 추가
 const db = require('./db/database');  // database.js에서 db 연결을 가져옵니다.
 const Routes = require('./routes/routes');  // 방금 만든 Routes 클래스
 
