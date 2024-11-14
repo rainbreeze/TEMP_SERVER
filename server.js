@@ -1,9 +1,9 @@
 const express = require('express');  // express 모듈을 가져옵니다.
 const cors = require('cors');
-const Lectures = require('./lectures');
-const Actors = require('./actors');
-const Comments = require('./comments');  // 댓글 처리를 위한 Comments 클래스 추가
-const db = require('./database');  // database.js에서 db 연결을 가져옵니다.
+const Lectures = require('./models/lectures');
+const Actors = require('./models/actors');
+const Comments = require('./models/comments');  // 댓글 처리를 위한 Comments 클래스 추가
+const db = require('./db/database');  // database.js에서 db 연결을 가져옵니다.
 
 class Server {
     constructor() {
